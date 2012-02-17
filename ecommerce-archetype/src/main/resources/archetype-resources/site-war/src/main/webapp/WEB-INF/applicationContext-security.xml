@@ -25,7 +25,7 @@
                         default-target-url='/product.htm'
                         authentication-failure-url="/registerCustomer/registerCustomer.htm?error=true"
                         login-processing-url="/login_post.htm"
-                        authentication-success-handler-ref="blMergeCartProcessor"
+                        authentication-success-handler-ref="blAuthenticationSuccessHandler"
                 />
         <sec:logout logout-url="/logout.htm"/>
         <sec:remember-me/>
