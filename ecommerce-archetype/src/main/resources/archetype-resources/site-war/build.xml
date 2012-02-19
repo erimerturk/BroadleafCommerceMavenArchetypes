@@ -106,4 +106,53 @@
         <echo message="SQL Executed on data base..." />
     </target>
 
+    <target name="build-sql">
+        <!--You will need to run a mvn install on your project before attempting to execute this task-->
+        <mkdir dir="target/sql"/>
+        <artifact:pom id="myPom" file="pom.xml" />
+        <artifact:dependencies filesetId="pomDeps" pomRefId="myPom" useScope="compile" />
+        <property name="baseTarget" location="target/${myPom.build.finalName}/WEB-INF"/>
+        <fileset id="libDir" dir="${baseTarget}/lib"/>
+        <path id="build.runtime.classpath">
+            <!--There are some additional libraries needed at compile time that are not included
+                in WEB-INF/lib - find those libraries via a difference algorithm-->
+            <restrict>
+                <difference>
+                    <fileset refid="pomDeps" />
+                    <intersect>
+                        <fileset refid="pomDeps" />
+                        <fileset refid="libDir" />
+                    </intersect>
+                </difference>
+                <rsel:not>
+                    <rsel:name name="**/*.pom" />
+                </rsel:not>
+            </restrict>
+            <!--Add the lib directory to get all the dependencies required for the demo app-->
+            <fileset refid="libDir"/>
+            <!--Add the classes directory in the war project, if required-->
+            <!--<pathelement location="${baseTarget}/classes"/>-->
+        </path>
+        <!--If the war project does not contain custom entities (best practice), then it is not necessary to include application context from the WEB-INF directory-->
+        <!--<property name="my.app.context" location="src/main/webapp/WEB-INF/applicationContext.xml"/>-->
+        <taskdef name="hibernatetool" classname="org.broadleafcommerce.common.util.sql.HibernateToolTask" classpathref="build.runtime.classpath" />
+        <hibernatetool destDir="target/sql" combinePersistenceUnits="false" refineFileNames="true">
+            <!--add in additional persistence configuration related to the admin -->
+            <classPathApplicationContext path="bl-open-admin-contentClient-applicationContext.xml"/>
+            <!--add in additional persistence configuration related to the cms -->
+            <classPathApplicationContext path="bl-cms-contentClient-applicationContext.xml"/>
+            <!--add in additional persistence configuration for our core -->
+            <classPathApplicationContext path="mycompany-applicationContext.xml"/>
+            <!--see description for my.app.context above -->
+            <!--<fileSystemApplicationContext path="${my.app.context}"/>-->
+            <!--select the dialects and persistence units to export-->
+            <jpaconfiguration persistenceUnit="blPU" dialect="org.hibernate.dialect.HSQLDialect" />
+            <jpaconfiguration persistenceUnit="blSecurePU" dialect="org.hibernate.dialect.HSQLDialect" />
+            <jpaconfiguration persistenceUnit="blCMSStorage" dialect="org.hibernate.dialect.HSQLDialect" />
+            <!--other required elements-->
+            <classpath refid="build.runtime.classpath" />
+            <hbm2ddl export="false"/>
+        </hibernatetool>
+    </target>
+
 </project>
