@@ -14,6 +14,13 @@
         <blc.third.party.integration.version>1.6.0-SNAPSHOT</blc.third.party.integration.version>
 	</properties>
     <description>Top Level Project</description>
+    <repositories>
+        <repository>
+            <id>public releases</id>
+            <name>public releases</name>
+            <url>http://www.broadleafcommerce.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 	<build>
 		<pluginManagement>
 			<plugins>
